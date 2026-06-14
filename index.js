@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const pasteRoute = require("./routes/pasteRoute")
 const {pasteHandle} = require("./controllers/pasteLog")
+const {getPaste} = require("./controllers/getPaste")
+const getPasteRoute = require("./routes/getPasteRoute")
 const paste = require("./model/pasteDB")
 
 
@@ -16,6 +18,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api", pasteRoute);
+app.use("/api", getPasteRoute);
+
 
 const PORT = 3333;
 app.listen(PORT, () => {

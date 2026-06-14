@@ -15,10 +15,12 @@ const pasteHandle = async (req, res) => {
     }
 
     const shortId = generateShortId();
+    const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const newPaste = await Paste.create({
       shortId,
       content,
+      expiresAt: expirationDate,
     });
 
     return res.status(201).json(newPaste);

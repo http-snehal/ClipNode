@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClipNode - View Paste</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #editor-container { height: calc(100vh - 64px); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e1e1e; }
+        ::-webkit-scrollbar-thumb { background: #424242; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4f4f4f; }
+    </style>
+</head>
+<body class="bg-[#1e1e1e] text-gray-200 overflow-hidden flex flex-col h-screen">
+
+    <header class="h-16 bg-[#252526] border-b border-[#333333] flex items-center justify-between px-6 shadow-sm">
+        
+        <div class="flex items-center gap-6">
+            <h1 class="text-xl font-bold tracking-tight text-gray-100 flex items-center gap-2">
+                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                ClipNode
+            </h1>
+            
+            <span class="bg-[#1e1e1e] border border-[#3c3c3c] text-xs text-gray-400 rounded px-2 py-1 uppercase tracking-wider font-semibold">
+                <%= paste.language || 'plaintext' %>
+            </span>
+        </div>
+
+        <div class="flex items-center gap-5">
+            <div class="text-xs text-gray-400 font-mono bg-[#1e1e1e] px-3 py-1.5 rounded border border-[#3c3c3c]">
+                Expires: <%= new Date(paste.expiresAt).toLocaleString() %>
+            </div>
+            <a href="/" class="bg-[#333333] hover:bg-[#444444] transition-colors text-white text-sm font-medium px-4 py-2 rounded shadow-md">
+                New Paste
+            </a>
+        </div>
+
+    </header>
+
+    <textarea id="raw-content" style="display:none;"><%= paste.content %></textarea>
+
+    <div id="editor-container" class="w-full"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs/loader.min.js"></script>
+    <script>
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.39.0/min/vs' }});
+
+        require(['vs/editor/editor.main'], function() {
+            const rawText = document.getElementById('raw-content').value;
+
+            window.editor = monaco.editor.create(document.getElementById('editor-container'), {
+                value: rawText,
+                
+                // 🚀 THE MAGIC LINE: We inject the database value directly into Monaco!
+                language: '<%= paste.language || "plaintext" %>', 
+                
+                theme: 'vs-dark',
+                readOnly: true, // Still locked for viewing only
+                automaticLayout: true,
+                minimap: { enabled: false },
+                fontSize: 14,
+                fontFamily: "'Fira Code', 'JetBrains Mono', 'Courier New', monospace",
+                padding: { top: 16 }
+            });
+        });
+    </script>
+</body>
+</html>

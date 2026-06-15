@@ -5,6 +5,14 @@ const {pasteHandle} = require("./controllers/pasteLog")
 const {getPaste} = require("./controllers/getPaste")
 const getPasteRoute = require("./routes/getPasteRoute")
 const paste = require("./model/pasteDB")
+const path = require("path");
+const viewRoutes = require("./routes/viewRoute");
+
+const app = express();
+
+app.set("view engine", "ejs");
+app.set("views", path.resolve("./views"));
+
 
 
 mongoose
@@ -12,13 +20,14 @@ mongoose
   .then(console.log("mongodb connected"))
   .catch((err) => console.log(err));
 
-const app = express();
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api", pasteRoute);
 app.use("/api", getPasteRoute);
+app.use("/", viewRoutes);
 
 
 const PORT = 3333;

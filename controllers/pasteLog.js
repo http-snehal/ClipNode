@@ -8,7 +8,7 @@ const generateShortId = customAlphabet(
 
 const pasteHandle = async (req, res) => {
   try {
-    const { content } = req.body;
+    const { content , language} = req.body;
 
     if (!content) {
       return res.status(400).json({ error: "content is required" });
@@ -20,6 +20,7 @@ const pasteHandle = async (req, res) => {
     const newPaste = await Paste.create({
       shortId,
       content,
+       language: language || 'javascript',
       expiresAt: expirationDate,
     });
 

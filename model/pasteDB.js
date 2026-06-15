@@ -5,7 +5,8 @@ const pasteSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    index: true 
+    index: true
+
   },
   content: {
     type: String,

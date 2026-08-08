@@ -111,9 +111,15 @@
     </header>
 
     <% if (flashSuccess && flashSuccess.length > 0) { %>
-        <div id="flash-banner" class="bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-400 text-sm px-6 py-2.5 flex items-center gap-2">
+        <div id="flash-banner-success" class="bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-400 text-sm px-6 py-2.5 flex items-center gap-2">
             <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <%= flashSuccess[0] %>
+        </div>
+    <% } %>
+    <% if (flashError && flashError.length > 0) { %>
+        <div id="flash-banner-error" class="bg-red-500/10 border-b border-red-500/20 text-red-400 text-sm px-6 py-2.5 flex items-center gap-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <%= flashError[0] %>
         </div>
     <% } %>
 

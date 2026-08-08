@@ -5,7 +5,11 @@ const showSignup = (req, res) => {
   if (req.session && req.session.userId) return res.redirect('/');
   const formDataRaw = req.flash('formData')[0];
   let formData = {};
-  try { formData = formDataRaw ? JSON.parse(formDataRaw) : {}; } catch (e) { formData = {}; }
+  try {
+    formData = formDataRaw ? JSON.parse(formDataRaw) : {};
+  } catch (e) {
+    formData = {};
+  }
   res.render('signup', {
     error: req.flash('error'),
     success: req.flash('success'),
@@ -15,12 +19,22 @@ const showSignup = (req, res) => {
 
 // POST /signup
 const handleSignup = async (req, res) => {
+  let username = '';
+  let email = '';
   try {
-    const { username, email, password, confirmPassword } = req.body;
+    username = (req.body.username || '').trim();
+    email = (req.body.email || '').trim().toLowerCase();
+    const { password, confirmPassword } = req.body;
 
     // Basic validation
     if (!username || !email || !password || !confirmPassword) {
       req.flash('error', 'All fields are required.');
+      req.flash('formData', JSON.stringify({ username, email }));
+      return res.redirect('/signup');
+    }
+
+    if (username.length < 3) {
+      req.flash('error', 'Username must be at least 3 characters long.');
       req.flash('formData', JSON.stringify({ username, email }));
       return res.redirect('/signup');
     }
@@ -32,31 +46,31 @@ const handleSignup = async (req, res) => {
     }
 
     if (password.length < 6) {
-      req.flash('error', 'Password must be at least 6 characters.');
+      req.flash('error', 'Password must be at least 6 characters long.');
       req.flash('formData', JSON.stringify({ username, email }));
       return res.redirect('/signup');
     }
 
     // Check for existing email
-    const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
+    const existingEmail = await User.findOne({ email });
     if (existingEmail) {
-      req.flash('error', 'An account with this email already exists.');
+      req.flash('error', 'An account with this email already exists. Please log in.');
       req.flash('formData', JSON.stringify({ username }));
       return res.redirect('/signup');
     }
 
     // Check for existing username
-    const existingUsername = await User.findOne({ username: username.trim() });
+    const existingUsername = await User.findOne({ username });
     if (existingUsername) {
-      req.flash('error', 'This username is already taken.');
+      req.flash('error', 'This username is already taken. Please choose another.');
       req.flash('formData', JSON.stringify({ email }));
       return res.redirect('/signup');
     }
 
     // Create user
     const newUser = await User.create({
-      username: username.trim(),
-      email: email.toLowerCase().trim(),
+      username,
+      email,
       password
     });
 
@@ -67,7 +81,7 @@ const handleSignup = async (req, res) => {
     req.session.save((err) => {
       if (err) {
         console.error('Session save error after signup:', err);
-        req.flash('error', 'Account created but session failed. Please log in.');
+        req.flash('error', 'Account created but session initialization failed. Please log in.');
         return res.redirect('/login');
       }
       res.redirect('/');
@@ -75,7 +89,19 @@ const handleSignup = async (req, res) => {
 
   } catch (err) {
     console.error('Signup error:', err);
-    req.flash('error', 'Something went wrong. Please try again.');
+    let errorMessage = 'Could not create account. Please check your details and try again.';
+    
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern || {})[0];
+      errorMessage = field === 'email' 
+        ? 'An account with this email already exists.' 
+        : 'This username is already taken.';
+    } else if (err.name === 'ValidationError') {
+      errorMessage = Object.values(err.errors).map(e => e.message).join('. ');
+    }
+    
+    req.flash('error', errorMessage);
+    req.flash('formData', JSON.stringify({ username, email }));
     res.redirect('/signup');
   }
 };
@@ -92,14 +118,15 @@ const showLogin = (req, res) => {
 // POST /login
 const handleLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = (req.body.email || '').trim().toLowerCase();
+    const password = req.body.password || '';
 
     if (!email || !password) {
       req.flash('error', 'Email and password are required.');
       return res.redirect('/login');
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    const user = await User.findOne({ email });
     if (!user) {
       req.flash('error', 'Invalid email or password.');
       return res.redirect('/login');
@@ -118,7 +145,7 @@ const handleLogin = async (req, res) => {
     req.session.save((err) => {
       if (err) {
         console.error('Session save error after login:', err);
-        req.flash('error', 'Login failed. Please try again.');
+        req.flash('error', 'Login failed to save session. Please try again.');
         return res.redirect('/login');
       }
       res.redirect('/');
@@ -126,17 +153,22 @@ const handleLogin = async (req, res) => {
 
   } catch (err) {
     console.error('Login error:', err);
-    req.flash('error', 'Something went wrong. Please try again.');
+    req.flash('error', 'An error occurred during login. Please try again.');
     res.redirect('/login');
   }
 };
 
 // POST /logout
 const handleLogout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) console.error('Logout error:', err);
+  if (req.session) {
+    req.session.destroy((err) => {
+      if (err) console.error('Logout error:', err);
+      res.clearCookie('connect.sid');
+      res.redirect('/');
+    });
+  } else {
     res.redirect('/');
-  });
+  }
 };
 
 module.exports = { showSignup, handleSignup, showLogin, handleLogin, handleLogout };

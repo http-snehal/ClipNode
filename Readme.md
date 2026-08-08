@@ -24,12 +24,14 @@ The snippet automatically self-destructs after **24 hours**. Zero maintenance, z
 
 ## ⚡ Core Features
 
-* 🎨 **Monaco-Powered Editor:** Embedded VS Code editor engine for syntax highlighting and keybindings.
-* 🔀 **Dynamic Syntax Engine:** Instant code highlighting for JavaScript, Python, C++, HTML, CSS, and more.
-* 🔒 **Read-Only Lock:** Shared URLs lock the editor for viewers, preventing accidental edits while preserving formatting.
+* 🎨 **Monaco-Powered Editor:** Embedded VS Code editor engine with multi-theme support (Dark, Light, High-Contrast) and word wrap toggle.
+* 🔀 **Expanded Dynamic Syntax:** Highlighting support for JavaScript, TypeScript, Python, C++, Java, Go, Rust, HTML, CSS, JSON, SQL, Markdown, Shell, YAML, and Plain Text.
+* ⏳ **Customizable Auto-Expiring Vault:** Flexible TTL durations (1 Hour, 24 Hours, 7 Days, 30 Days, or Never Expire).
+* 📄 **Raw View & Download:** Dedicated `/raw/:shortId` endpoint for clean CLI/cURL access and one-click file download.
+* 📋 **One-Click Clipboard & Link Sharing:** Instant copy code and share link buttons with sleek toast notifications.
+* ⌨️ **Developer Shortcuts:** Press `Ctrl+S` / `Cmd+S` to instantly create a snippet.
+* 🔒 **Read-Only Lock:** Shared URLs lock the editor for viewers, preserving snippet formatting.
 * 🔗 **Nanoid Shortlinks:** Generates collision-resistant, 7-character URL-friendly slugs.
-* ⏳ **Auto-Expiring Vault:** Powered by native MongoDB Time-To-Live (TTL) indexing—snippets automatically purge after 24 hours without requiring background cron jobs.
-* ⚡ **Zero-Friction:** No accounts, no logins, and zero onboarding required.
 
 ---
 

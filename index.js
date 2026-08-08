@@ -7,6 +7,7 @@ const getPasteRoute = require("./routes/getPasteRoute")
 const paste = require("./model/pasteDB")
 const path = require("path");
 const viewRoutes = require("./routes/viewRoute");
+require("dotenv").config();
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.set("views", path.resolve("./views"));
 
 
 mongoose
-  .connect(`mongodb://127.0.0.1:27017/ClipNode`)
+  .connect(process.env.MONGO_URI)
   .then(console.log("mongodb connected"))
   .catch((err) => console.log(err));
 
@@ -30,7 +31,7 @@ app.use("/api", getPasteRoute);
 app.use("/", viewRoutes);
 
 
-const PORT = 3333;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
   console.log(`server started`);

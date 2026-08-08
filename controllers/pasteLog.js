@@ -45,6 +45,7 @@ const pasteHandle = async (req, res) => {
       shortId,
       content,
       language: language || "javascript",
+      userId: req.session.userId || null,
       ...(expirationDate && { expiresAt: expirationDate }),
     });
 

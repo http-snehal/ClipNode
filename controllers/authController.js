@@ -2,11 +2,14 @@ const User = require('../model/userDB');
 
 // GET /signup
 const showSignup = (req, res) => {
-  if (req.session.userId) return res.redirect('/');
+  if (req.session && req.session.userId) return res.redirect('/');
+  const formDataRaw = req.flash('formData')[0];
+  let formData = {};
+  try { formData = formDataRaw ? JSON.parse(formDataRaw) : {}; } catch (e) { formData = {}; }
   res.render('signup', {
     error: req.flash('error'),
     success: req.flash('success'),
-    formData: req.flash('formData')[0] || {}
+    formData
   });
 };
 
@@ -34,35 +37,42 @@ const handleSignup = async (req, res) => {
       return res.redirect('/signup');
     }
 
-    // Check for existing user
-    const existingEmail = await User.findOne({ email: email.toLowerCase() });
+    // Check for existing email
+    const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
     if (existingEmail) {
       req.flash('error', 'An account with this email already exists.');
       req.flash('formData', JSON.stringify({ username }));
       return res.redirect('/signup');
     }
 
-    const existingUsername = await User.findOne({ username });
+    // Check for existing username
+    const existingUsername = await User.findOne({ username: username.trim() });
     if (existingUsername) {
       req.flash('error', 'This username is already taken.');
       req.flash('formData', JSON.stringify({ email }));
       return res.redirect('/signup');
     }
 
-    // Determine role — admin if email matches env var
-    const role = (email.toLowerCase() === (process.env.ADMIN_EMAIL || '').toLowerCase())
-      ? 'admin'
-      : 'user';
+    // Create user
+    const newUser = await User.create({
+      username: username.trim(),
+      email: email.toLowerCase().trim(),
+      password
+    });
 
-    const newUser = await User.create({ username, email, password, role });
-
-    // Set session
-    req.session.userId = newUser._id;
+    // Set session then save to store BEFORE redirecting
+    req.session.userId   = newUser._id.toString();
     req.session.username = newUser.username;
-    req.session.userRole = newUser.role;
 
-    req.flash('success', `Welcome to ClipNode, ${newUser.username}!`);
-    res.redirect('/');
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error after signup:', err);
+        req.flash('error', 'Account created but session failed. Please log in.');
+        return res.redirect('/login');
+      }
+      res.redirect('/');
+    });
+
   } catch (err) {
     console.error('Signup error:', err);
     req.flash('error', 'Something went wrong. Please try again.');
@@ -72,7 +82,7 @@ const handleSignup = async (req, res) => {
 
 // GET /login
 const showLogin = (req, res) => {
-  if (req.session.userId) return res.redirect('/');
+  if (req.session && req.session.userId) return res.redirect('/');
   res.render('login', {
     error: req.flash('error'),
     success: req.flash('success')
@@ -89,7 +99,7 @@ const handleLogin = async (req, res) => {
       return res.redirect('/login');
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
       req.flash('error', 'Invalid email or password.');
       return res.redirect('/login');
@@ -101,13 +111,19 @@ const handleLogin = async (req, res) => {
       return res.redirect('/login');
     }
 
-    // Set session
-    req.session.userId = user._id;
+    // Set session then save to store BEFORE redirecting
+    req.session.userId   = user._id.toString();
     req.session.username = user.username;
-    req.session.userRole = user.role;
 
-    req.flash('success', `Welcome back, ${user.username}!`);
-    res.redirect('/');
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error after login:', err);
+        req.flash('error', 'Login failed. Please try again.');
+        return res.redirect('/login');
+      }
+      res.redirect('/');
+    });
+
   } catch (err) {
     console.error('Login error:', err);
     req.flash('error', 'Something went wrong. Please try again.');

@@ -10,7 +10,6 @@ const pasteRoute = require("./routes/pasteRoute");
 const getPasteRoute = require("./routes/getPasteRoute");
 const viewRoutes = require("./routes/viewRoute");
 const authRoute = require("./routes/authRoute");
-const adminRoute = require("./routes/adminRoute");
 
 const app = express();
 
@@ -51,24 +50,22 @@ app.use(flash());
 
 // Expose user and flash data to all EJS templates
 app.use((req, res, next) => {
-  res.locals.currentUser = req.session.userId
+  res.locals.currentUser = req.session && req.session.userId
     ? {
         id: req.session.userId,
         username: req.session.username,
-        role: req.session.userRole,
       }
     : null;
-  res.locals.flashSuccess = req.flash("success");
-  res.locals.flashError = req.flash("error");
+  res.locals.flashSuccess = req.flash('success');
+  res.locals.flashError   = req.flash('error');
   next();
 });
 
 // Routes
-app.use("/", authRoute);
-app.use("/", adminRoute);
-app.use("/api", pasteRoute);
-app.use("/api", getPasteRoute);
-app.use("/", viewRoutes);
+app.use('/', authRoute);
+app.use('/api', pasteRoute);
+app.use('/api', getPasteRoute);
+app.use('/', viewRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

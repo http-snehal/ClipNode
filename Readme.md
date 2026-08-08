@@ -99,7 +99,10 @@ The snippet automatically self-destructs after **24 hours**. Zero maintenance, z
    ```env
    PORT=3333
    MONGO_URI=mongodb://localhost:27017/clipnode
+   SESSION_SECRET=your_super_secret_key_here
+   ADMIN_EMAIL=your@email.com
    ```
+   > **Note:** `SESSION_SECRET` should be a long, random string. `ADMIN_EMAIL` is the email address that will automatically receive admin privileges upon signup.
 
 4. **Start the server**
    ```bash
@@ -109,7 +112,20 @@ The snippet automatically self-destructs after **24 hours**. Zero maintenance, z
 
 ---
 
-## 🤝 Contributing
+## 🔐 Authentication
+
+ClipNode now supports optional user accounts:
+
+* **Sign Up / Log In** at `/signup` and `/login` — sessions persist for 7 days via MongoDB.
+* **Anonymous pastes** are still fully supported — no account required.
+* **Linked pastes** — when logged in, each paste is linked to your account.
+* **Admin Dashboard** at `/admin` — visible only to the admin account. Set `ADMIN_EMAIL` in `.env` to the email you sign up with to gain admin access.
+  * View all registered users (with paste counts, join date, role badges)
+  * View all pastes (with creator info, expiry status)
+  * Delete users or pastes
+
+---
+
 
 Contributions are welcome! Feel free to open an issue or submit a Pull Request to improve syntax options, themes, or core functionality.
 

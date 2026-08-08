@@ -109,32 +109,51 @@ const handleSignup = async (req, res) => {
 // GET /login
 const showLogin = (req, res) => {
   if (req.session && req.session.userId) return res.redirect('/');
+  const formDataRaw = req.flash('formData')[0];
+  let formData = {};
+  try {
+    formData = formDataRaw ? JSON.parse(formDataRaw) : {};
+  } catch (e) {
+    formData = {};
+  }
   res.render('login', {
     error: req.flash('error'),
-    success: req.flash('success')
+    success: req.flash('success'),
+    formData
   });
 };
 
 // POST /login
 const handleLogin = async (req, res) => {
   try {
-    const email = (req.body.email || '').trim().toLowerCase();
+    const identifier = (req.body.identifier || req.body.email || req.body.username || '').trim();
     const password = req.body.password || '';
 
-    if (!email || !password) {
-      req.flash('error', 'Email and password are required.');
+    if (!identifier || !password) {
+      req.flash('error', 'Email/Username and password are required.');
+      req.flash('formData', JSON.stringify({ identifier }));
       return res.redirect('/login');
     }
 
-    const user = await User.findOne({ email });
+    // Find user by either email OR username (case-insensitive regex for username)
+    const escapedIdentifier = identifier.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const user = await User.findOne({
+      $or: [
+        { email: identifier.toLowerCase() },
+        { username: new RegExp(`^${escapedIdentifier}$`, 'i') }
+      ]
+    });
+
     if (!user) {
-      req.flash('error', 'Invalid email or password.');
+      req.flash('error', 'Invalid email/username or password.');
+      req.flash('formData', JSON.stringify({ identifier }));
       return res.redirect('/login');
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      req.flash('error', 'Invalid email or password.');
+      req.flash('error', 'Invalid email/username or password.');
+      req.flash('formData', JSON.stringify({ identifier }));
       return res.redirect('/login');
     }
 

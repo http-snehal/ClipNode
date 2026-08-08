@@ -7,10 +7,14 @@ const isAuthenticated = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-  if (req.session && req.session.userId && req.session.userRole === 'admin') {
-    return next();
+  if (!req.session || !req.session.userId) {
+    req.flash('error', 'Please log in to access this page.');
+    return res.redirect('/login');
   }
-  res.redirect('/');
+  if (req.session.userRole !== 'admin') {
+    return res.redirect('/');
+  }
+  next();
 };
 
 module.exports = { isAuthenticated, isAdmin };

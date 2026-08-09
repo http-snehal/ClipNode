@@ -99,7 +99,9 @@ The snippet automatically self-destructs after **24 hours**. Zero maintenance, z
    ```env
    PORT=3333
    MONGO_URI=mongodb://localhost:27017/clipnode
+   SESSION_SECRET=your_super_secret_key_here
    ```
+   > **Note:** `SESSION_SECRET` should be a long, random string.
 
 4. **Start the server**
    ```bash
@@ -109,7 +111,16 @@ The snippet automatically self-destructs after **24 hours**. Zero maintenance, z
 
 ---
 
-## 🤝 Contributing
+## 🔐 Authentication
+
+ClipNode supports optional user accounts:
+
+* **Sign Up / Log In** at `/signup` and `/login` — sessions persist securely via MongoDB.
+* **Anonymous pastes** are still fully supported — no account required.
+* **Linked pastes** — when logged in, pastes created during your session are automatically linked to your user account.
+
+---
+
 
 Contributions are welcome! Feel free to open an issue or submit a Pull Request to improve syntax options, themes, or core functionality.
 

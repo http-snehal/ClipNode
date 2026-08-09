@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Paste = require('../model/pasteDB');
+const { isAuthenticated } = require('../middleware/auth');
 
-router.get('/', (req, res) => {
+router.get('/', isAuthenticated, (req, res) => {
     res.render('index'); 
 });
 

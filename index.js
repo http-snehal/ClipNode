@@ -18,8 +18,8 @@ app.set("views", path.resolve("./views"));
 
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(console.log("mongodb connected"))
-  .catch((err) => console.log(err));
+  .then(() => console.log("mongodb connected"))
+  .catch((err) => console.log("mongodb connection error:", err));
 
 
 

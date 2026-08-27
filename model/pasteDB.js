@@ -16,6 +16,10 @@ const pasteSchema = new mongoose.Schema({
     type: String,
     default: 'plaintext'
   },
+  isLive: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now

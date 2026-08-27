@@ -71,6 +71,15 @@
                     </select>
                 </div>
 
+                <!-- Live Collaboration Toggle -->
+                <label id="live-toggle-wrapper" title="Enable Real-Time Live Collaboration" class="flex items-center gap-2 bg-[#1e1e1e] border border-[#3c3c3c] rounded px-3 py-1.5 cursor-pointer hover:border-blue-500 transition-colors">
+                    <input type="checkbox" id="live-collaboration-toggle" class="w-3.5 h-3.5 text-blue-600 bg-[#252526] border-[#3c3c3c] rounded focus:ring-blue-500 focus:ring-1 cursor-pointer">
+                    <div class="flex items-center gap-1.5 text-xs text-gray-200 font-medium select-none">
+                        <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span>Live Collaboration</span>
+                    </div>
+                </label>
+
                 <!-- Theme Selector -->
                 <div class="flex items-center gap-2 bg-[#1e1e1e] border border-[#3c3c3c] rounded px-3 py-1.5 focus-within:border-blue-500 transition-colors">
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
@@ -174,6 +183,7 @@
             const content = window.editor.getValue();
             const language = document.getElementById('language-select').value;
             const expiry = document.getElementById('expiry-select').value;
+            const isLive = document.getElementById('live-collaboration-toggle').checked;
 
             if (!content || content.trim() === '' || content.trim() === '// Paste your code or text here...') {
                 showToast("Please enter some code before saving!", "error");
@@ -188,7 +198,7 @@
                 const response = await fetch('/api/paste', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content, language, expiry })
+                    body: JSON.stringify({ content, language, expiry, isLive })
                 });
 
                 const data = await response.json();

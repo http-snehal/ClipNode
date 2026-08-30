@@ -8,7 +8,7 @@ const generateShortId = customAlphabet(
 
 const pasteHandle = async (req, res) => {
   try {
-    const { content, language, expiry } = req.body;
+    const { content, language, expiry, isLive } = req.body;
 
     if (!content || !content.trim()) {
       return res.status(400).json({ error: "Content is required" });
@@ -46,6 +46,7 @@ const pasteHandle = async (req, res) => {
       content,
       language: language || "javascript",
       userId: req.session.userId || null,
+      isLive: Boolean(isLive),
       ...(expirationDate && { expiresAt: expirationDate }),
     });
 

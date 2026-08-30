@@ -20,6 +20,10 @@ const pasteSchema = new mongoose.Schema({
     ref: 'User',
     default: null
   },
+  isLive: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
